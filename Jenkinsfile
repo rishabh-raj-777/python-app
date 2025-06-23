@@ -3,13 +3,12 @@ pipeline {
 
   environment {
     IMAGE_NAME = 'rishabhraj7/python-app'
-    CONTAINER_NAME = 'python-app-container'
   }
 
   stages {
-    stage('Build Docker Image') {
+    stage('Docker Compose Build') {
       steps {
-        bat "docker build -t %IMAGE_NAME% ."
+        bat 'docker-compose build'
       }
     }
 
@@ -20,23 +19,25 @@ pipeline {
           usernameVariable: 'DOCKER_USER',
           passwordVariable: 'DOCKER_PASS'
         )]) {
-          bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
-          bat "docker push %IMAGE_NAME%"
+          bat """
+            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+            docker tag python-app %IMAGE_NAME%
+            docker push %IMAGE_NAME%
+          """
         }
       }
     }
 
-    stage('Run Docker Container') {
+    stage('Run with Docker Compose') {
       steps {
-        bat "docker stop %CONTAINER_NAME% || exit 0"
-        bat "docker rm %CONTAINER_NAME% || exit 0"
-        bat "docker-compose up"
+        bat 'docker-compose down || exit 0'
+        bat 'docker-compose up -d'
       }
     }
 
-    stage('Verify Running Container') {
+    stage('Verify Containers') {
       steps {
-        bat "docker ps -f name=%CONTAINER_NAME%"
+        bat 'docker ps'
       }
     }
   }
