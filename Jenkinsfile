@@ -3,6 +3,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = 'rishabhraj7/python-app'
+    CONTAINER_NAME = 'python-app-container'
   }
 
   stages {
@@ -26,14 +27,25 @@ pipeline {
         }
       }
     }
+
+    stage('Run Docker Container') {
+      steps {
+        // Stop and remove existing container if already running
+        bat """
+          docker stop %CONTAINER_NAME% || exit 0
+          docker rm %CONTAINER_NAME% || exit 0
+          docker run -d --name %CONTAINER_NAME% -p 5000:5000 %IMAGE_NAME%
+        """
+      }
+    }
   }
 
   post {
     success {
-      echo '✅ Build and push successful!'
+      echo '✅ Build, push, and run successful!'
     }
     failure {
-      echo '❌ Build failed.'
+      echo '❌ Pipeline failed.'
     }
   }
 }
