@@ -20,10 +20,10 @@ pipeline {
           usernameVariable: 'DOCKER_USER',
           passwordVariable: 'DOCKER_PASS'
         )]) {
-          bat """
+          bat '''
             echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
             docker push %IMAGE_NAME%
-          """
+          '''
         }
       }
     }
@@ -36,15 +36,14 @@ pipeline {
           docker run -d --name %CONTAINER_NAME% -p 5000:5000 %IMAGE_NAME%
         '''
       }
-}
+    }
 
     stage('Verify Running Container') {
       steps {
         bat 'docker ps -f name=%CONTAINER_NAME%'
       }
-}
-
-
+    }
+  }
 
   post {
     success {
