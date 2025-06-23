@@ -30,7 +30,7 @@ pipeline {
 
     stage('Run Docker Container') {
       steps {
-        // Stop and remove existing container if already running
+        // Stop and remove existing container if already running...
         bat """
           docker stop %CONTAINER_NAME% || exit 0
           docker rm %CONTAINER_NAME% || exit 0
