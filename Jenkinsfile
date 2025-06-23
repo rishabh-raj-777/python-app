@@ -20,27 +20,23 @@ pipeline {
           usernameVariable: 'DOCKER_USER',
           passwordVariable: 'DOCKER_PASS'
         )]) {
-          bat '''
-            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-            docker push %IMAGE_NAME%
-          '''
+          bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
+          bat "docker push %IMAGE_NAME%"
         }
       }
     }
 
     stage('Run Docker Container') {
       steps {
-        bat '''
-          docker stop %CONTAINER_NAME% || exit 0
-          docker rm %CONTAINER_NAME% || exit 0
-          docker run -d --name %CONTAINER_NAME% -p 5000:5000 %IMAGE_NAME%
-        '''
+        bat "docker stop %CONTAINER_NAME% || exit 0"
+        bat "docker rm %CONTAINER_NAME% || exit 0"
+        bat "docker run -d --name %CONTAINER_NAME% -p 5000:5000 %IMAGE_NAME%"
       }
     }
 
     stage('Verify Running Container') {
       steps {
-        bat 'docker ps -f name=%CONTAINER_NAME%'
+        bat "docker ps -f name=%CONTAINER_NAME%"
       }
     }
   }
