@@ -30,15 +30,21 @@ pipeline {
 
     stage('Run Docker Container') {
       steps {
-        // Stop and remove existing container if already running...
-        bat """
+        bat '''
           docker stop %CONTAINER_NAME% || exit 0
           docker rm %CONTAINER_NAME% || exit 0
           docker run -d --name %CONTAINER_NAME% -p 5000:5000 %IMAGE_NAME%
-        """
+        '''
       }
-    }
-  }
+}
+
+    stage('Verify Running Container') {
+      steps {
+        bat 'docker ps -f name=%CONTAINER_NAME%'
+      }
+}
+
+
 
   post {
     success {
