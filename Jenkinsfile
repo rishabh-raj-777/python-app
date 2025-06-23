@@ -30,7 +30,7 @@ pipeline {
       steps {
         bat "docker stop %CONTAINER_NAME% || exit 0"
         bat "docker rm %CONTAINER_NAME% || exit 0"
-        bat "docker run -d --name %CONTAINER_NAME% -p 5000:5000 %IMAGE_NAME%"
+        bat "docker-compose up"
       }
     }
 
