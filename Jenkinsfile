@@ -28,19 +28,27 @@ pipeline {
       }
     }
 
-    stage('Run with Docker Compose') {
+    stage('Docker Compose Build') {
       steps {
-        bat 'docker-compose down || exit 0'
-        bat 'docker-compose up -d'
+        bat 'docker-compose build'
       }
-    }
+}
 
-    stage('Verify Containers') {
+    stage('Push to Docker Hub') {
       steps {
-        bat 'docker ps'
+        withCredentials([usernamePassword(
+          credentialsId: 'docker-hub-creds',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          bat '''
+            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+            docker push rishabhraj7/python-app
+          '''
+        }
       }
-    }
-  }
+}
+
 
   post {
     success {
