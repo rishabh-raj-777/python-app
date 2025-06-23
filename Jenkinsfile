@@ -19,36 +19,29 @@ pipeline {
           usernameVariable: 'DOCKER_USER',
           passwordVariable: 'DOCKER_PASS'
         )]) {
-          bat """
+          bat '''
             echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-            docker tag python-app %IMAGE_NAME%
             docker push %IMAGE_NAME%
-          """
+          '''
         }
       }
     }
 
-    stage('Docker Compose Build') {
+    stage('Run with Docker Compose') {
       steps {
-        bat 'docker-compose build'
+        bat '''
+          docker-compose down || exit 0
+          docker-compose up -d
+        '''
       }
-}
+    }
 
-    stage('Push to Docker Hub') {
+    stage('Verify Running Container') {
       steps {
-        withCredentials([usernamePassword(
-          credentialsId: 'docker-hub-creds',
-          usernameVariable: 'DOCKER_USER',
-          passwordVariable: 'DOCKER_PASS'
-        )]) {
-          bat '''
-            echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-            docker push rishabhraj7/python-app
-          '''
-        }
+        bat 'docker ps'
       }
-}
-
+    }
+  }
 
   post {
     success {
